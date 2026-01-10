@@ -69,3 +69,7 @@ thumbnails/
 *.bak
 *.tmp
 *.temp
+
+# Coding agent artifacts
+plans/
+prompts/
