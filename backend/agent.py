@@ -118,9 +118,14 @@ async def tool_add_slide(args: dict[str, Any]) -> dict[str, Any]:
     except ValueError:
         layout = SlideLayout.BLANK
 
+    # Count pending ADD edits to calculate correct index
+    # This ensures slides added in quick succession get correct sequential indices
+    pending_add_count = sum(1 for e in session.pending_edits if e.operation == "ADD")
+    current_slide_count = len(session.presentation.slides)
+
     # Determine position
-    if position is None or position >= len(session.presentation.slides):
-        index = len(session.presentation.slides)
+    if position is None or position >= (current_slide_count + pending_add_count):
+        index = current_slide_count + pending_add_count
     else:
         index = max(0, position)
 
@@ -411,28 +416,30 @@ WORKFLOW:
 2. Use add_slide to add slides with HTML content
 3. Use commit_edits to finalize and save all changes
 
-HTML GUIDELINES:
-- Use semantic HTML (h1, h2, p, ul, li)
-- Use inline styles for positioning and colors
-- Keep text concise - bullet points, not paragraphs
-- Slide dimensions: 960x540px (16:9 aspect ratio)
+CRITICAL - SLIDE DIMENSIONS:
+- Slides are EXACTLY 960px wide x 540px tall (16:9 aspect ratio)
+- ALL content MUST fit within these bounds - no overflow allowed
+- Your root div MUST have: width: 960px; height: 540px; overflow: hidden;
+- Use box-sizing: border-box to include padding in dimensions
 
-EXAMPLE SLIDE HTML:
-<div style="padding: 40px; font-family: Arial, sans-serif;">
-  <h1 style="color: #1a73e8; margin-bottom: 20px;">Slide Title</h1>
-  <ul style="font-size: 24px; line-height: 1.6;">
+HTML TEMPLATE (USE THIS STRUCTURE):
+<div style="width: 960px; height: 540px; padding: 40px; box-sizing: border-box; overflow: hidden; font-family: Arial, sans-serif;">
+  <h1 style="color: #1a73e8; margin: 0 0 20px 0; font-size: 36px;">Slide Title</h1>
+  <ul style="font-size: 22px; line-height: 1.5; margin: 0; padding-left: 24px;">
     <li>First key point</li>
     <li>Second key point</li>
     <li>Third key point</li>
   </ul>
 </div>
 
-DESIGN PRINCIPLES:
-- One main idea per slide
-- Consistent color scheme throughout
-- Use contrast for readability
+DESIGN RULES:
+- Root container: ALWAYS 960x540px with overflow:hidden
+- Title: max 36px font, single line preferred
+- Body text: 18-24px font size
+- Padding: 40px on all sides (leaves 880x460px for content)
 - Maximum 5-6 bullet points per slide
-- Use visual hierarchy with font sizes
+- If using cards/grids, calculate sizes to fit within bounds
+- Test mentally: will this content fit in 880x460px usable area?
 
 You can call add_slide multiple times in parallel for efficiency when creating multiple slides.
 Always call commit_edits when done to save the presentation."""
@@ -441,6 +448,11 @@ SYSTEM_PROMPT_CONTINUATION = """You are editing an existing presentation.
 
 CRITICAL: Only modify slides the user specifically requests.
 DO NOT change slides that weren't mentioned unless explicitly asked.
+
+CRITICAL - SLIDE DIMENSIONS:
+- Slides are EXACTLY 960px wide x 540px tall (16:9 aspect ratio)
+- ALL content MUST fit within these bounds - no overflow allowed
+- Root div MUST have: width: 960px; height: 540px; overflow: hidden; box-sizing: border-box;
 
 WORKFLOW:
 1. Use list_slides to see all current slides
