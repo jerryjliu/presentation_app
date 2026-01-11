@@ -79,6 +79,27 @@ export async function* streamAgent(options: {
 }
 
 /**
+ * Update a slide's HTML content.
+ */
+export async function updateSlideContent(
+  sessionId: string,
+  slideIndex: number,
+  html: string
+): Promise<void> {
+  const formData = new FormData();
+  formData.append("html", html);
+
+  const response = await fetch(
+    `${API_BASE}/session/${sessionId}/slides/${slideIndex}`,
+    { method: "PATCH", body: formData }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to update slide: ${response.status}`);
+  }
+}
+
+/**
  * Get slides for a session.
  */
 export async function getSessionSlides(sessionId: string): Promise<Slide[]> {

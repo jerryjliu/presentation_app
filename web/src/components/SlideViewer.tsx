@@ -3,17 +3,22 @@
 import { useEffect, useCallback } from "react";
 import type { Slide } from "@/types";
 import { SlideRenderer } from "./SlideRenderer";
+import { updateSlideContent } from "@/lib/api";
 
 interface SlideViewerProps {
   slides: Slide[];
   currentIndex: number;
   onIndexChange: (index: number) => void;
+  sessionId?: string;
+  onSlideUpdate?: (index: number, html: string) => void;
 }
 
 export function SlideViewer({
   slides,
   currentIndex,
   onIndexChange,
+  sessionId,
+  onSlideUpdate,
 }: SlideViewerProps) {
   const totalSlides = slides.length;
   const currentSlide = slides[currentIndex];
@@ -33,9 +38,13 @@ export function SlideViewer({
   // Keyboard navigation - supports both Left/Right and Up/Down arrows
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't capture keyboard events when user is typing in an input
+      // Don't capture keyboard events when user is typing in an input or contentEditable
       const target = e.target as HTMLElement;
-      if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") {
+      if (
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.isContentEditable
+      ) {
         return;
       }
 
@@ -51,6 +60,26 @@ export function SlideViewer({
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [goToPrevious, goToNext]);
+
+  const handleContentChange = useCallback(
+    async (newHtml: string) => {
+      // Update local state first for immediate feedback
+      if (onSlideUpdate) {
+        onSlideUpdate(currentIndex, newHtml);
+      }
+
+      // Persist to backend
+      if (sessionId) {
+        try {
+          await updateSlideContent(sessionId, currentIndex, newHtml);
+        } catch (e) {
+          console.error("Failed to save slide:", e);
+          // TODO: Show error toast to user
+        }
+      }
+    },
+    [sessionId, currentIndex, onSlideUpdate]
+  );
 
   if (totalSlides === 0) {
     return (
@@ -74,7 +103,12 @@ export function SlideViewer({
       {/* Main slide display */}
       <div className="flex-1 flex items-center justify-center bg-gray-100 p-4">
         {currentSlide && (
-          <SlideRenderer html={currentSlide.html} scale={scale} />
+          <SlideRenderer
+            html={currentSlide.html}
+            scale={scale}
+            editable={!!sessionId}
+            onContentChange={handleContentChange}
+          />
         )}
       </div>
 

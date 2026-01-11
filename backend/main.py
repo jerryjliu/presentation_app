@@ -178,6 +178,31 @@ async def get_slides(session_id: str):
     }
 
 
+@app.patch("/session/{session_id}/slides/{slide_index}")
+async def update_slide_content(
+    session_id: str,
+    slide_index: int,
+    html: str = Form(...),
+):
+    """Update a single slide's HTML content."""
+    from session import session_manager
+
+    session = session_manager.load_session(session_id)
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    if not session.presentation:
+        raise HTTPException(status_code=400, detail="No presentation in session")
+
+    if slide_index < 0 or slide_index >= len(session.presentation.slides):
+        raise HTTPException(status_code=400, detail="Invalid slide index")
+
+    session.presentation.slides[slide_index].html = html
+    session_manager.save_session(session)
+
+    return {"success": True, "slide_index": slide_index}
+
+
 @app.get("/session/{session_id}/export")
 async def export_pptx(session_id: str):
     """Export presentation as PPTX file."""

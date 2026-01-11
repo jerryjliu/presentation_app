@@ -164,6 +164,15 @@ export default function Home() {
     setStyleTemplate(null);
   }, []);
 
+  // Handle slide content updates from inline editing
+  const handleSlideUpdate = useCallback((index: number, html: string) => {
+    setSlides((prevSlides) =>
+      prevSlides.map((slide, i) =>
+        i === index ? { ...slide, html } : slide
+      )
+    );
+  }, []);
+
   if (isLoading) {
     return (
       <div className="h-screen flex items-center justify-center">
@@ -212,6 +221,8 @@ export default function Home() {
             slides={slides}
             currentIndex={currentSlideIndex}
             onIndexChange={setCurrentSlideIndex}
+            sessionId={userSessionId || undefined}
+            onSlideUpdate={handleSlideUpdate}
           />
         </div>
 
