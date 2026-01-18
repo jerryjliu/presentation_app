@@ -69,7 +69,7 @@ export function ExportMenu({
       <button
         onClick={() => setIsMenuOpen(!isMenuOpen)}
         disabled={isDisabled}
-        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+        className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-hover disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
       >
         {isExporting ? (
           <>

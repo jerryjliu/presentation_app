@@ -18,7 +18,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
       <div
         className={`max-w-[85%] rounded-lg ${
           isUser
-            ? "bg-blue-600 text-white p-3"
+            ? "bg-accent text-white p-3"
             : isAssistant
             ? "bg-white border border-gray-200 shadow-sm"
             : "bg-yellow-50 text-yellow-800 border border-yellow-200 p-3"
@@ -29,7 +29,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
             {/* User message content */}
             <div className="whitespace-pre-wrap break-words">{message.content}</div>
             {/* Timestamp */}
-            <div className="text-xs mt-2 text-blue-200">
+            <div className="text-xs mt-2 text-white/60">
               {message.timestamp.toLocaleTimeString()}
             </div>
           </>
