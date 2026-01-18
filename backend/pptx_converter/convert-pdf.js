@@ -89,11 +89,17 @@ async function convertToPdf() {
     process.exit(1);
   }
 
-  // Launch browser
-  const browser = await puppeteer.launch({
+  // Launch browser - use PUPPETEER_EXECUTABLE_PATH if set (for Docker/production)
+  const launchOptions = {
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
-  });
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+  };
+
+  if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+    launchOptions.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+  }
+
+  const browser = await puppeteer.launch(launchOptions);
 
   try {
     const page = await browser.newPage();
@@ -111,9 +117,10 @@ async function convertToPdf() {
     for (let i = 0; i < slides.length; i++) {
       const slideHtml = generateSlideHtml(slides[i].html);
 
-      // Set content and wait for rendering
+      // Set content and wait for DOM to be ready (networkidle0 can hang with inline HTML)
       await page.setContent(slideHtml, {
-        waitUntil: 'networkidle0'
+        waitUntil: 'domcontentloaded',
+        timeout: 10000
       });
 
       // Small delay to ensure CSS is fully applied
@@ -181,7 +188,8 @@ async function convertToPdf() {
 `;
 
       await page.setContent(allSlidesHtml, {
-        waitUntil: 'networkidle0'
+        waitUntil: 'domcontentloaded',
+        timeout: 10000
       });
 
       await new Promise(resolve => setTimeout(resolve, 200));
