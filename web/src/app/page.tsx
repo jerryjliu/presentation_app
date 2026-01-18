@@ -9,7 +9,7 @@ import { ExportMenu } from "@/components/ExportMenu";
 import { ContextFilesUpload } from "@/components/ContextFilesUpload";
 import { TemplateUpload } from "@/components/TemplateUpload";
 import { TemplatePreview } from "@/components/TemplatePreview";
-import ApiKeyGate, { clearStoredApiKey } from "@/components/ApiKeyGate";
+import ApiKeyGate, { clearStoredApiKeys } from "@/components/ApiKeyGate";
 import { getSessionSlides } from "@/lib/api";
 import {
   generateSessionId,
@@ -44,6 +44,7 @@ export default function Home() {
 
   // API key state
   const [llamaApiKey, setLlamaApiKey] = useState<string | null>(null);
+  const [anthropicApiKey, setAnthropicApiKey] = useState<string | null>(null);
 
   // Initialize session on mount
   useEffect(() => {
@@ -186,22 +187,32 @@ export default function Home() {
   }
 
   return (
-    <ApiKeyGate onApiKeyValidated={setLlamaApiKey}>
+    <ApiKeyGate onApiKeyValidated={(llama, anthropic) => {
+      setLlamaApiKey(llama);
+      setAnthropicApiKey(anthropic);
+    }}>
       <div className="h-screen flex flex-col">
         {/* Header */}
-        <header className="bg-white border-b px-4 py-3 flex items-center justify-between">
+        <header className="flex-shrink-0 px-6 py-3 border-b border-border flex items-center justify-between bg-background">
+          <div className="flex items-center gap-3">
+            <img
+              src="/llamaindex-logo.png"
+              alt="LlamaIndex"
+              className="w-8 h-8 rounded-lg"
+            />
+            <div>
+              <h1 className="text-sm font-semibold text-foreground">Presentation Generator</h1>
+              <p className="text-xs text-foreground-muted">AI-powered presentation creation by LlamaIndex</p>
+            </div>
+          </div>
+
           <div className="flex items-center gap-4">
-            <h1 className="text-xl font-semibold text-gray-900">
-              AI Presentation Generator
-            </h1>
             <button
               onClick={handleNewSession}
-              className="text-sm text-blue-600 hover:text-blue-800"
+              className="text-sm text-accent hover:text-accent-hover transition-colors"
             >
               + New Presentation
             </button>
-          </div>
-          <div className="flex items-center gap-4">
             <ExportMenu
               sessionId={userSessionId}
               presentationTitle={presentation?.title || "presentation"}
@@ -209,11 +220,12 @@ export default function Home() {
             />
             <button
               onClick={() => {
-                clearStoredApiKey();
+                clearStoredApiKeys();
                 setLlamaApiKey(null);
+                setAnthropicApiKey(null);
                 window.location.reload();
               }}
-              className="text-sm text-gray-500 hover:text-gray-700"
+              className="text-xs text-foreground-muted hover:text-error transition-colors"
             >
               Sign Out
             </button>

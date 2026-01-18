@@ -27,6 +27,24 @@ export async function validateApiKey(apiKey: string): Promise<{ valid: boolean; 
 }
 
 /**
+ * Validate an Anthropic API key against the backend.
+ */
+export async function validateAnthropicKey(apiKey: string): Promise<void> {
+  const response = await fetch(`${API_BASE}/validate-anthropic-key`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ api_key: apiKey }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ detail: 'Failed to validate API key' }));
+    throw new Error(error.detail || 'Invalid Anthropic API key');
+  }
+}
+
+/**
  * Stream agent interaction for presentation creation/editing.
  */
 export async function* streamAgent(options: {

@@ -30,7 +30,7 @@ export function SlideGrid({
           onClick={() => onSlideSelect(index)}
           className={`w-full p-1 rounded transition-all ${
             currentIndex === index
-              ? "ring-2 ring-blue-500 bg-blue-50"
+              ? "ring-2 ring-accent bg-accent-light"
               : "hover:bg-gray-100"
           }`}
         >
