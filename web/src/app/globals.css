@@ -124,7 +124,7 @@ body {
 }
 
 .slide-content {
-  overflow: hidden;
+  /* overflow managed by container */
 }
 
 /* Animation for streaming indicator */

@@ -85,12 +85,32 @@ export function SlideRenderer({
         const scaleX = width / contentWidth;
         const scaleY = height / contentHeight;
         const fitScale = Math.min(scaleX, scaleY, 1);
-        setContentScale(fitScale * 0.92);
+        setContentScale(fitScale);
       } else {
         setContentScale(1);
       }
     });
   }, [html, width, height, isEditing]);
+
+  // Remove overflow constraints from rendered content so it can expand before scaling
+  useLayoutEffect(() => {
+    if (!contentRef.current || isEditing) return;
+
+    // Remove overflow:hidden from all elements so content can expand
+    const allElements = contentRef.current.querySelectorAll("*");
+    allElements.forEach((el) => {
+      const htmlEl = el as HTMLElement;
+      if (htmlEl.style.overflow === "hidden") {
+        htmlEl.style.overflow = "visible";
+      }
+    });
+
+    // Specifically target the root element (AI's container div)
+    const rootEl = contentRef.current.firstElementChild as HTMLElement;
+    if (rootEl) {
+      rootEl.style.overflow = "visible";
+    }
+  }, [html, isEditing]);
 
   const enterEditMode = useCallback(() => {
     if (!editable) return;
