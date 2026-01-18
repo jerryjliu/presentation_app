@@ -417,13 +417,19 @@ WORKFLOW:
 3. Use commit_edits to finalize and save all changes
 
 CRITICAL - SLIDE DIMENSIONS:
-- Slides are EXACTLY 960px wide x 540px tall (16:9 aspect ratio)
-- ALL content MUST fit within these bounds - no overflow allowed
-- Your root div MUST have: width: 960px; height: 540px; overflow: hidden;
-- Use box-sizing: border-box to include padding in dimensions
+- Slides are 960px wide x 540px tall (16:9 aspect ratio)
+- The frontend provides the container dimensions and overflow handling
+- Your root div controls STYLING ONLY: padding, fonts, colors, backgrounds
+- DO NOT set width, height, or overflow on your root div - the frontend handles that
 
-HTML TEMPLATE (USE THIS STRUCTURE):
-<div style="width: 960px; height: 540px; padding: 40px; box-sizing: border-box; overflow: hidden; font-family: Arial, sans-serif;">
+DESIGN RULES:
+- Default padding: 40px on all sides (leaves 880x460px usable area)
+- Maximum 5-6 bullet points per slide
+- Font sizes: titles 32-40px, body text 20-24px
+- Test mentally: will this content fit in 880x460px usable area?
+
+TEMPLATE - Root div has STYLING only (no width/height/overflow):
+<div style="padding: 40px; box-sizing: border-box; font-family: Arial, sans-serif;">
   <h1 style="color: #1a73e8; margin: 0 0 20px 0; font-size: 36px;">Slide Title</h1>
   <ul style="font-size: 22px; line-height: 1.5; margin: 0; padding-left: 24px;">
     <li>First key point</li>
@@ -432,14 +438,13 @@ HTML TEMPLATE (USE THIS STRUCTURE):
   </ul>
 </div>
 
-DESIGN RULES:
-- Root container: ALWAYS 960x540px with overflow:hidden
-- Title: max 36px font, single line preferred
-- Body text: 18-24px font size
-- Padding: 40px on all sides (leaves 880x460px for content)
-- Maximum 5-6 bullet points per slide
-- If using cards/grids, calculate sizes to fit within bounds
-- Test mentally: will this content fit in 880x460px usable area?
+STYLE CUSTOMIZATION:
+- You CAN customize the root div's padding, font-family, background, and colors
+- For style templates, adjust these properties as needed
+- Example with custom styling:
+<div style="padding: 60px; font-family: 'Georgia', serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+  ...
+</div>
 
 You can call add_slide multiple times in parallel for efficiency when creating multiple slides.
 Always call commit_edits when done to save the presentation."""
@@ -450,9 +455,10 @@ CRITICAL: Only modify slides the user specifically requests.
 DO NOT change slides that weren't mentioned unless explicitly asked.
 
 CRITICAL - SLIDE DIMENSIONS:
-- Slides are EXACTLY 960px wide x 540px tall (16:9 aspect ratio)
-- ALL content MUST fit within these bounds - no overflow allowed
-- Root div MUST have: width: 960px; height: 540px; overflow: hidden; box-sizing: border-box;
+- Slides are 960px wide x 540px tall (16:9 aspect ratio)
+- The frontend provides the container dimensions and overflow handling
+- Your root div controls STYLING ONLY: padding, fonts, colors, backgrounds
+- DO NOT set width, height, or overflow on your root div - the frontend handles that
 
 WORKFLOW:
 1. Use list_slides to see all current slides

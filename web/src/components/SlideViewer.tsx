@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useRef, useState } from "react";
 import type { Slide } from "@/types";
 import { SlideRenderer } from "./SlideRenderer";
 import { updateSlideContent } from "@/lib/api";
@@ -22,6 +22,14 @@ export function SlideViewer({
 }: SlideViewerProps) {
   const totalSlides = slides.length;
   const currentSlide = slides[currentIndex];
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerSize, setContainerSize] = useState({ width: 600, height: 337.5 });
+
+  // Dynamic scale calculation based on container size
+  const scale = Math.min(
+    containerSize.width / 960,
+    containerSize.height / 540
+  );
 
   const goToPrevious = useCallback(() => {
     if (currentIndex > 0) {
@@ -61,6 +69,27 @@ export function SlideViewer({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [goToPrevious, goToNext]);
 
+  // ResizeObserver for dynamic scaling
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (entry) {
+        const { width, height } = entry.contentRect;
+        // Account for padding (p-4 = 16px on each side)
+        setContainerSize({
+          width: Math.max(width - 32, 100),
+          height: Math.max(height - 32, 56.25),
+        });
+      }
+    });
+
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, []);
+
   const handleContentChange = useCallback(
     async (newHtml: string) => {
       // Update local state first for immediate feedback
@@ -95,13 +124,10 @@ export function SlideViewer({
     );
   }
 
-  // Calculate scale to fit container (assuming max width of ~600px)
-  const scale = 0.625; // 600 / 960
-
   return (
     <div className="flex-1 flex flex-col">
       {/* Main slide display */}
-      <div className="flex-1 flex items-center justify-center bg-gray-100 p-4">
+      <div ref={containerRef} className="flex-1 flex items-center justify-center bg-gray-100 p-4">
         {currentSlide && (
           <SlideRenderer
             html={currentSlide.html}
