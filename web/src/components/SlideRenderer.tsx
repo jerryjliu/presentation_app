@@ -51,14 +51,18 @@ export function SlideRenderer({
     allElements.forEach((el) => {
       const htmlEl = el as HTMLElement;
       htmlEl.style.overflow = "visible";
+      htmlEl.style.maxWidth = "none";
       htmlEl.style.maxHeight = "none";
+      htmlEl.style.width = "auto";
       htmlEl.style.height = "auto";
     });
 
     const rootEl = measureContainer.firstElementChild as HTMLElement;
     if (rootEl) {
       rootEl.style.overflow = "visible";
+      rootEl.style.width = "auto";
       rootEl.style.height = "auto";
+      rootEl.style.maxWidth = "none";
       rootEl.style.maxHeight = "none";
     }
 
