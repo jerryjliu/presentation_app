@@ -19,12 +19,13 @@ from models import Presentation, PendingEdit
 
 logger = logging.getLogger(__name__)
 
-# Session data directory
-SESSIONS_DIR = Path(__file__).parent / "sessions_data"
-SESSIONS_DIR.mkdir(exist_ok=True)
+# Session data directory - use DATA_DIR env var for persistent storage in production
+DATA_DIR = Path(os.environ.get("DATA_DIR", Path(__file__).parent))
+SESSIONS_DIR = DATA_DIR / "sessions_data"
+SESSIONS_DIR.mkdir(parents=True, exist_ok=True)
 
 # SQLite database path
-DB_PATH = Path(__file__).parent / "sessions.db"
+DB_PATH = DATA_DIR / "sessions.db"
 
 
 class PresentationSession:

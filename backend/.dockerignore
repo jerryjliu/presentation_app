@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+
+# Node
+pptx_converter/node_modules/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# Local data (will be mounted as volume in production)
+sessions_data/
+sessions.db
+*.db
+
+# Misc
+.DS_Store
+*.log
+.env
+.env.*

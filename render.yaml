@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: presentation-api
+    runtime: docker
+    plan: starter
+    region: oregon
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /health
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: LLAMA_CLOUD_API_KEY
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: DATA_DIR
+        value: /app/data
+    disk:
+      name: presentation-data
+      mountPath: /app/data
+      sizeGB: 1
